@@ -1,7 +1,9 @@
-const puppeteer = require('puppeteer');
+"use strict";
 
-console.log("Parameters: ");
+const puppeteer = require('puppeteer');
+const Flight = require("flight");
 var program = require('commander');
+        
 
 program
   .version('0.1.0')
@@ -24,9 +26,6 @@ if (program.endDate) endDate = program.endDate;
 let url = "https://www.ryanair.com/it/en/booking/home/" + from + "/" + to + "/" + startDate + "/" + endDate + "/1/0/0/0";
 
 async function getinnerTextBySelector(puppetterPage, selector){
-
-  console.log(new Date() + " Selector:" + selector);
-
   const allPrices = await puppetterPage.evaluate((selector) => {
     let prices = Array();
     var list = document.querySelectorAll(selector);
@@ -39,42 +38,75 @@ async function getinnerTextBySelector(puppetterPage, selector){
   return allPrices;
 }
 
+/**
+ * Parse single flight object, according to the selectors
+ * @param {*} puppetterPage 
+ */
+async function getFlightItemList(puppetterPage){
+  var flightObjects = [];
+
+  const flightsArray = await puppetterPage.evaluate(() => {
+      var flightArray = [];
+      let selectorTripItem = "div.flight-header.flight-header__notice";
+      selectedItems = document.querySelectorAll(selectorTripItem);
+
+      [...selectedItems].map(element => {
+        var flightItem = {};
+        
+        var departureSelector = "span.cities__departure";
+        var destinationSelector = "span.cities__destination";
+        var startTimeSelector = "div.start-time";
+        var arrivalTimeSelector = "div.start-time";
+        var priceSelector = "span.flights-table-price__price";
+
+        flightItem.departure = element.querySelector(departureSelector) != null ? element.querySelector(departureSelector).innerText: "";
+        flightItem.destination = element.querySelector(destinationSelector) != null ? element.querySelector(destinationSelector).innerText: "";
+        flightItem.startTime = element.querySelector(startTimeSelector)!= null ? element.querySelector(startTimeSelector).innerText: "";
+        flightItem.arrivalTime = element.querySelector(arrivalTimeSelector) != null ? element.querySelector(arrivalTimeSelector).innerText: "";
+        flightItem.price = element.querySelector(priceSelector + "--discount") != null ? element.querySelector(priceSelector + "--discount").innerText: "";
+        flightItem.discounted = true;
+
+        if(flightItem.price == "")
+        {
+          flightItem.price = element.querySelector(priceSelector) != null ? element.querySelector(priceSelector).innerText: "";
+          flightItem.discounted = false;
+        }
+      
+        flightArray.push(flightItem);
+      });
+      return flightArray;
+  });
+
+  flightsArray.forEach(element => {
+    var flightObj = new Flight();
+    flightObj.startTime = element.startTime;
+    flightObj.arrivalTime = element.arrivalTime;
+    flightObj.price = element.price;
+    flightObj.departure = element.departure;
+    flightObj.destination = element.destination;
+    flightObj.discounted = element.discounted;
+    
+    flightObjects.push(flightObj);
+  });
+  return flightObjects;
+}
+
 (async () => {
   const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox'], 
                                           ignoreHTTPSErrors: true, dumpio: false });
   const page = await browser.newPage();
   console.log(new Date() + " " + url);
-  await page.goto(url, {
-    waitUntil: 'networkidle2',
-    timeout: 30000
-  });
+  await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
   console.log(new Date() + " Download complete, waiting some seconds more ...");
 
   await page.waitFor(3*1000); 
   //await page.screenshot({path: '/home/screenshot.png'});
 
-  var selector = "span.flights-table-price__price--discount";
-  const allPrices = await getinnerTextBySelector(page, selector);
-
-  selector = "div.start-time";
-  const startTimes = await getinnerTextBySelector(page, selector);
-
-  selector = "div.end-time";
-  const endTimes = await getinnerTextBySelector(page, selector);
-
-  selector = "span.cities__departure";
-  const citiesDeparture = await getinnerTextBySelector(page, selector);
-
-  selector = "span.cities__destination";
-  const citiesDestination = await getinnerTextBySelector(page, selector);
-
-  if (allPrices && allPrices.length > 0)
+  var list = await getFlightItemList(page)
+  if (list && list.length > 0)
   {
-    console.log("Found " + allPrices.length + " prices");
-    for(var i=0; i<allPrices.length; i++){
-      console.log("Start (%s): %s - Arrival (%s): %s: Price: %s", 
-                  citiesDeparture[i], startTimes[i], citiesDestination[i], endTimes[i], allPrices[i]);
-    }
+    console.log("Found " + list.length + " trips");
+    list.forEach(element => { console.log("%j", element); });
   }
   else console.log("No element found");
 
