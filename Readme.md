@@ -12,12 +12,14 @@ Then run the following command to run the container and execute the search
 ```
 docker run -v $(pwd)/:/home/ nodejs node /home/src/main.js -f <IATA_SRC> -t <IATA_DST> -s <DEPARTURE_DATE> -e <RETURN_DATE>
 ```
-Where:
 
-- IATA_SRC: Airport IATA code departure
-- IATA_DST: Airport IATA code destination
-- DEPARTURE_DATE: Departure date format YYYY-MM-DD
-- RETURN_DATE: Return date format YYYY-MM-DD
+##Documentation:
+```
+-f (--from): departure airport IATA code  (i.e. DUB, BGY, STN ...)
+-t (--to): destination airport IATA code  (i.e. DUB, BGY, STN ...)
+-s (--start-date): departure date format yyyy-mm-dd (i.e. 2018-12-07)
+-e (--end-date): return date format yyyy-mm-dd (i.e. 2018-12-09)
+```
 
 Example: 
 
@@ -50,11 +52,3 @@ The weekend date are not ok for you ? you can select custom date
 
 `curl http://localhost:8080/api/v1/flight/DUB/STN/20190110/20190113`
 
-
-#Documentation:
-```
--f (--from): departure airport code (i.e. DUB, BGY)
--t (--to): destination airport code (i.e. DUB, BGY)
--s (--start-date): departure date format yyyy-mm-dd (i.e. 2018-12-07)
--e (--end-date): return date format yyyy-mm-dd (i.e. 2018-12-09)
-```
