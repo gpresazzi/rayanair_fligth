@@ -14,6 +14,7 @@ RUN apt-get install -y libxtst6 gconf-service libasound2 libatk1.0-0 libc6 libca
 				fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget
 
 RUN npm i commander
-
+RUN npm install express
+RUN npm install moment
 # replace this with your application's default port
-EXPOSE 8888
+EXPOSE 3000
