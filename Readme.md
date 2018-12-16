@@ -13,7 +13,7 @@ Then run the following command to run the container and execute the search
 docker run -v $(pwd)/:/home/ nodejs node /home/src/main.js -f <IATA_SRC> -t <IATA_DST> -s <DEPARTURE_DATE> -e <RETURN_DATE>
 ```
 
-##Documentation:
+## Documentation:
 ```
 -f (--from): departure airport IATA code  (i.e. DUB, BGY, STN ...)
 -t (--to): destination airport IATA code  (i.e. DUB, BGY, STN ...)
