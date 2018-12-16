@@ -3,6 +3,8 @@ var moment = require("moment");
 var Scrape = require("flight_scrape");
 var app = express();
 
+const PORT = 3000;
+
 String.prototype.format = function() {
   a = this;
   for (k in arguments) {
@@ -18,7 +20,7 @@ function getIATACode(city){
   iataCodes["linate"] = "LIN";
   iataCodes["bergamo"] = "BGY";
   iataCodes["dublino"] = "DUB";
-  iataCodes["londra"] = "STD";
+  iataCodes["londra"] = "STN";
   iataCodes["amsterdam"] = "AMS";
 
   console.log(city);
@@ -68,7 +70,7 @@ app.get('/api/v1/flight/:src/:dst/', (req, res) => {
   scrape(citySrc, cityDst, friday.format("YYYY-MM-DD"), sunday.format("YYYY-MM-DD"), (list) => {
     return res.status(200).send({
       success: 'true',
-      message: "{0}({1}) ->{2}({3}) {4}".format(citySrc, friday, cityDst, sunday, list.length),  
+      message: "{0}".format(JSON.stringify(list)),  
     });
   });
 });
@@ -82,14 +84,16 @@ app.get('/api/v1/flight/:src/:dst/:from/:to/', (req, res) => {
   citySrc = getIATACode(src);
   cityDst = getIATACode(dst);
 
-  return res.status(200).send({
-    success: 'true',
-    message: from + to
+  scrape(citySrc, cityDst, from.format("YYYY-MM-DD"), to.format("YYYY-MM-DD"), (list) => {
+    return res.status(200).send({
+      success: 'true',
+      message: "{0}".format(JSON.stringify(list)),  
+    });
   });
+
 });
 
 
-
-app.listen(3000, () => {
+app.listen(PORT, () => {
  console.log("Server running on port 3000");
 });

@@ -10,7 +10,27 @@ docker build -t nodejs .
 Execute script to retrieve flight by console
 Then run the following command to run the container and execute the search
 ```
-docker run -v $(pwd)/:/home/ nodejs node /home/src/main.js -f DUB -t BGY -s 2019-01-07 -e 2019-01-07
+docker run -v $(pwd)/:/home/ nodejs node /home/src/main.js -f <IATA_SRC> -t <IATA_DST> -s <DEPARTURE_DATE> -e <RETURN_DATE>
+```
+Where:
+
+- IATA_SRC: Airport IATA code departure
+- IATA_DST: Airport IATA code destination
+- DEPARTURE_DATE: Departure date format YYYY-MM-DD
+- RETURN_DATE: Return date format YYYY-MM-DD
+
+Example: 
+
+`docker run -v $(pwd)/:/home/ nodejs node /home/src/main.js -f DUB -t BGY -s 2019-01-07 -e 2019-01-07`
+
+Output sample
+```
+Sat Dec 15 2018 22:10:00 GMT+0000 (GMT) https://www.ryanair.com/it/en/booking/home/DUB/LGW/2019-01-07/2019-01-07/1/0/0/0
+Sat Dec 15 2018 22:10:07 GMT+0000 (GMT) Download complete, waiting some seconds more ...
+Found 16 trips
+{"id":"id_1","departure":"Dublino","destination":"Londra (Gatwick)","startTime":"06:30","arrivalTime":"06:30","price":"17,99 €","discounted":false}
+{"id":"id_1","departure":"Dublino","destination":"Londra (Gatwick)","startTime":"07:30","arrivalTime":"07:30","price":"27,53 €","discounted":false}
+...
 ```
 
 # Web API
@@ -23,12 +43,12 @@ If you want to run the server and use REST API
 ### Easy way
 You don't need to specify the dates if you are used to book flight during the weekend. This API will select the starting date on Friday and the arrival Date on Sunday.
 
-`curl http://localhost:3000/api/v1/flight/DUB/BGY`
+`curl http://localhost:8080/api/v1/flight/DUB/STN`
 
 ### Do you prefere to specify your start and arrival date ?
 The weekend date are not ok for you ? you can select custom date 
 
-`curl http://localhost:3000/api/v1/flight/DUB/BGY/20191010/20191013`
+`curl http://localhost:8080/api/v1/flight/DUB/STN/20190110/20190113`
 
 
 #Documentation:
