@@ -67,10 +67,10 @@ app.get('/api/v1/flight/:src/:dst/', (req, res) => {
   citySrc = getIATACode(src);
   cityDst = getIATACode(dst);
 
-  scrape(citySrc, cityDst, friday.format("YYYY-MM-DD"), sunday.format("YYYY-MM-DD"), (list) => {
+  scrape(citySrc, cityDst, friday.format("YYYY-MM-DD"), sunday.format("YYYY-MM-DD"), (response) => {
     return res.status(200).send({
       success: 'true',
-      message: "{0}".format(JSON.stringify(list)),  
+      message: response,  
     });
   });
 });
@@ -84,10 +84,10 @@ app.get('/api/v1/flight/:src/:dst/:from/:to/', (req, res) => {
   citySrc = getIATACode(src);
   cityDst = getIATACode(dst);
 
-  scrape(citySrc, cityDst, from.format("YYYY-MM-DD"), to.format("YYYY-MM-DD"), (list) => {
+  scrape(citySrc, cityDst, from.format("YYYY-MM-DD"), to.format("YYYY-MM-DD"), (response) => {
     return res.status(200).send({
       success: 'true',
-      message: "{0}".format(JSON.stringify(list)),  
+      message: response,  
     });
   });
 
